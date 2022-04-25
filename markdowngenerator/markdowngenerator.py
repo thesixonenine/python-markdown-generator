@@ -252,7 +252,7 @@ class MarkdownGenerator:
         if self.enable_write:
             self.document.write(str(text))
 
-    def writeTextLine(self, text=None, html_escape: bool = True):
+    def writeTextLine(self, text=None, html_escape: bool = True, spaces: bool = True):
         """
         Write arbitrary text into the document file and add new line,
         or just adding data with new line into document data structure for easier manipulation.
@@ -265,22 +265,26 @@ class MarkdownGenerator:
 
         :param text: Input text string
         :param html_escape: bool, Whether the input should be escaped or not
+        :param spaces: bool, Whether the input should be append spaces or not
         """
+        end_spaces = '  '
+        if not spaces:
+            end_spaces = ''
         if text is None:
             # Just forcing new line, in Markdown there should be 2 or more spaces as well
-            self.document_data_array.append(str("  ") + self.linesep)
+            self.document_data_array.append(end_spaces + self.linesep)
             if self.enable_write:
-                self.document.write(str("  ") + self.linesep)
+                self.document.write(end_spaces + self.linesep)
 
             return
         if html_escape:
-            self.document_data_array.append(escape(str(text)) + "  " + self.linesep)
+            self.document_data_array.append(escape(str(text)) + end_spaces + self.linesep)
             if self.enable_write:
-                self.document.write(escape(str(text)) + "  " + self.linesep)
+                self.document.write(escape(str(text)) + end_spaces + self.linesep)
             return
-        self.document_data_array.append(str(text) + "  " + self.linesep)
+        self.document_data_array.append(str(text) + end_spaces + self.linesep)
         if self.enable_write:
-            self.document.write(str(text) + "  " + self.linesep)
+            self.document.write(str(text) + end_spaces + self.linesep)
 
     def writeAttributeValuePairLine(self, key_value_pair: tuple, total_padding=30):
 
