@@ -644,16 +644,16 @@ class MarkdownGenerator:
         self.writeTextLine(f"|")
         # Write dashes to separate headers
         if alignment == "left":
-            self.writeTextLine("".join(["|", ":---|" * len(header_names)]))
+            self.writeTextLine(text="".join(["|", ":---|" * len(header_names)]), spaces=False)
 
         elif alignment == "center":
-            self.writeTextLine("".join(["|", ":---:|" * len(header_names)]))
+            self.writeTextLine(text="".join(["|", ":---:|" * len(header_names)]), spaces=False)
 
         elif alignment == "right":
-            self.writeTextLine("".join(["|", "---:|" * len(header_names)]))
+            self.writeTextLine(text="".join(["|", "---:|" * len(header_names)]), spaces=False)
         else:
             self.logger.warning("Invalid alignment value in addTable. Using default.")
-            self.writeTextLine("".join(["|", ":---:|" * len(header_names)]))
+            self.writeTextLine(text="".join(["|", ":---:|" * len(header_names)]), spaces=False)
 
         # Write each row into the table
 
