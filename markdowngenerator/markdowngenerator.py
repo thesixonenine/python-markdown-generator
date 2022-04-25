@@ -1,9 +1,8 @@
+import os
 import tempfile
 from pathlib import Path
 import logging
 
-# import os
-from os import linesep
 from typing import List
 from html import escape
 from string import punctuation
@@ -55,6 +54,7 @@ class MarkdownGenerator:
         enable_write=True,
         enable_TOC=True,
         logger=None,
+        linesep=os.linesep,
     ):
         """
         Constructor method for MarkdownGenerator
@@ -97,6 +97,7 @@ class MarkdownGenerator:
         self.document_data_array = document_data_array if document_data_array else []
         self.enable_write = enable_write
         self.enable_TOC = enable_TOC
+        self.linesep = linesep
         ###########
         if not filename:
             self.logger.info(
@@ -147,7 +148,7 @@ class MarkdownGenerator:
             self.filename.joinpath(DEFAULT_FILE_LOCATION, ".md")
             self.default_filename_on_use = True
         if not self.document:
-            self.document = open(f"{self.filename}", "w+")
+            self.document = open(f"{self.filename}", mode="w+", newline=self.linesep)
             current_tmp_dir = tempfile.gettempdir()
             self.tmp_dir = tempfile.TemporaryDirectory(dir=current_tmp_dir)
 
@@ -192,7 +193,7 @@ class MarkdownGenerator:
         """
         tableofcontents = []  # test_logger.debug(f"Expected: '{expected_output}'")
         # test_logger.debug(f"Generated '{generated_output}'")
-        tableofcontents.append(f"### Table of Contents  {linesep}")
+        tableofcontents.append(f"### Table of Contents  {self.linesep}")
         prevLevel = 0
         padding = "  "
         footnote = None
@@ -213,15 +214,15 @@ class MarkdownGenerator:
                         level = prevLevel + 2
 
                     tableofcontents.append(
-                        f"{level * padding}* {self.generateHrefNotation(name, href)}{linesep}"
+                        f"{level * padding}* {self.generateHrefNotation(name, href)}{self.linesep}"
                     )
                 prevLevel = level
         # Footnote should be last one.
         if footnote:
             tableofcontents.append(
-                f'{footnoteLevel * padding}* {self.generateHrefNotation(footnote.get("headerName"), footnote.get("headerHref"))}{linesep}'
+                f'{footnoteLevel * padding}* {self.generateHrefNotation(footnote.get("headerName"), footnote.get("headerHref"))}{self.linesep}'
             )
-        tableofcontents.append(f"  {linesep}")
+        tableofcontents.append(f"  {self.linesep}")
         self.document_data_array = (
             self.document_data_array[: linenumber - 1]
             + tableofcontents
@@ -267,19 +268,19 @@ class MarkdownGenerator:
         """
         if text is None:
             # Just forcing new line, in Markdown there should be 2 or more spaces as well
-            self.document_data_array.append(str("  ") + linesep)
+            self.document_data_array.append(str("  ") + self.linesep)
             if self.enable_write:
-                self.document.write(str("  ") + linesep)
+                self.document.write(str("  ") + self.linesep)
 
             return
         if html_escape:
-            self.document_data_array.append(escape(str(text)) + "  " + linesep)
+            self.document_data_array.append(escape(str(text)) + "  " + self.linesep)
             if self.enable_write:
-                self.document.write(escape(str(text)) + "  " + linesep)
+                self.document.write(escape(str(text)) + "  " + self.linesep)
             return
-        self.document_data_array.append(str(text) + "  " + linesep)
+        self.document_data_array.append(str(text) + "  " + self.linesep)
         if self.enable_write:
-            self.document.write(str(text) + "  " + linesep)
+            self.document.write(str(text) + "  " + self.linesep)
 
     def writeAttributeValuePairLine(self, key_value_pair: tuple, total_padding=30):
 
@@ -465,7 +466,7 @@ class MarkdownGenerator:
         Method for appending Horizontal Rule:
         See: https://docs.gitlab.com/ee/user/markdown.html#horizontal-rule
         """
-        self.writeTextLine(f"{linesep}{HORIZONTAL_RULE}{linesep}")
+        self.writeTextLine(f"{self.linesep}{HORIZONTAL_RULE}{self.linesep}")
 
     def addCodeBlock(self, text, syntax: str = None, escape_html: bool = False):
         """
@@ -486,11 +487,11 @@ class MarkdownGenerator:
 
         if escape_html:
             self.writeTextLine(
-                f"{CODE_BLOCK}{syntax}{linesep}{text}{linesep}{CODE_BLOCK}"
+                f"{CODE_BLOCK}{syntax}{self.linesep}{text}{self.linesep}{CODE_BLOCK}"
             )
         else:
             self.writeTextLine(
-                f"{CODE_BLOCK}{syntax}{linesep}{text}{linesep}{CODE_BLOCK}",
+                f"{CODE_BLOCK}{syntax}{self.linesep}{text}{self.linesep}{CODE_BLOCK}",
                 html_escape=False,
             )
 
@@ -503,7 +504,7 @@ class MarkdownGenerator:
 
         :param text: Actual content/code into code block
         :param escape_html: Wheather the input is html escaped or not. Default is True
-        :param write: Wheather the output is written immediately or returned. 
+        :param write: Wheather the output is written immediately or returned.
         :return: If write is false, generated InlineCodeBlock is returned
         :rtype: string
         By default constructed output is returned only.
@@ -546,7 +547,7 @@ class MarkdownGenerator:
         :param text: Input text for inside blockquote
         """
         self.writeTextLine(
-            f"{MULTILINE_BLOCKQUOTE}{linesep}{escape(text.strip())}{linesep}{MULTILINE_BLOCKQUOTE}",
+            f"{MULTILINE_BLOCKQUOTE}{self.linesep}{escape(text.strip())}{self.linesep}{MULTILINE_BLOCKQUOTE}",
             html_escape=False,
         )
 
@@ -562,7 +563,7 @@ class MarkdownGenerator:
         as item in Markdown list
         """
         for item in iterableStringList:
-            self.writeText(f"  * {item}{linesep}")
+            self.writeText(f"  * {item}{self.linesep}")
         self.writeTextLine()
 
     def addTable(
@@ -750,7 +751,7 @@ class MarkdownGenerator:
             # Append footnote into the list, which will be written in the end.
             self.footnote_index["value"] += 1
             self.pending_footnote_references.append(
-                f"[^{self.footnote_index.get('value')}]: {footnote}{linesep}"
+                f"[^{self.footnote_index.get('value')}]: {footnote}{self.linesep}"
             )
         else:
             self.logger.debug(
