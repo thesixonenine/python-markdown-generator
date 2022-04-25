@@ -252,7 +252,7 @@ class MarkdownGenerator:
         if self.enable_write:
             self.document.write(str(text))
 
-    def writeTextLine(self, text=None, html_escape: bool = True, spaces: bool = True):
+    def writeTextLine(self, text=None, html_escape: bool = True, spaces: bool = False):
         """
         Write arbitrary text into the document file and add new line,
         or just adding data with new line into document data structure for easier manipulation.
